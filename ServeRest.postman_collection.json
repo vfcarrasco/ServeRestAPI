@@ -1,0 +1,920 @@
+{
+	"info": {
+		"_postman_id": "5e847ba5-d2dc-4da2-8707-3273e80827d6",
+		"name": "ServeRest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9233660"
+	},
+	"item": [
+		{
+			"name": "Geração de massa",
+			"item": [
+				{
+					"name": "Gerar nova pessoa",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"console.log (pm.response.json().results[0].name.first )\r",
+									"pm.globals.set(\"userName\", pm.response.json().results[0].name.first )\r",
+									"\r",
+									"console.log (pm.response.json().results[0].email)\r",
+									"pm.globals.set(\"userEmail\", pm.response.json().results[0].email )\r",
+									"\r",
+									"console.log( pm.response.json().results[0].login.password)\r",
+									"pm.globals.set(\"userPassword\", pm.response.json().results[0].login.password )"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://randomuser.me/api/",
+							"protocol": "https",
+							"host": [
+								"randomuser",
+								"me"
+							],
+							"path": [
+								"api",
+								""
+							]
+						},
+						"description": "This endpoint makes an HTTP GET request to retrieve random user data from the randomuser.me API.\n\n### Request\n\nNo request body parameters are required for this endpoint.\n\n### Response\n\nThe response will contain a JSON object with random user data, including details such as name, email, gender, and location."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Login sucesso",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"vitorcarrasco@gmail.com\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/login",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuários",
+			"item": [
+				{
+					"name": "Listar usuários cadastrados",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/usuarios",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						},
+						"description": "# Get Users\n\nThis endpoint is used to retrieve a list of users.\n\n## Request\n\n- Method: GET\n    \n- URL: {{BaseURL}}/usuarios\n    \n\n## Response\n\nThe response will contain a list of user objects, including their details such as user ID, name, email, and other relevant information.\n\nExample response:\n\n``` json\n[\n    {\n        \"id\": 123,\n        \"name\": \"John Doe\",\n        \"email\": \"johndoe@example.com\",\n        ...\n    },\n    {\n        \"id\": 456,\n        \"name\": \"Jane Smith\",\n        \"email\": \"janesmith@example.com\",\n        ...\n    },\n    ...\n]\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar Status code 201\", function() {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Capturar o id\", function(){\r",
+									"    pm.globals.set(\"userid\", pm.response.json()._id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema valido\", function(){\r",
+									"    pm.expect(tv4.validate(pm.response.json(), pm.globals.get('schemaCadastrarUsuario'))).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.unset(\"schemaCadastrarUsuario\");\r",
+									"\r",
+									"pm.globals.set(\"schemaCadastrarUsuario\", {\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"_id\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\",\r",
+									"    \"_id\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"{{userName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{userPassword}}\",\n    \"administrador\": \"false\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/usuarios",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar duplicado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar Status code 400\", function() {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Este email já está sendo usado\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema valido\", function(){\r",
+									"    pm.expect(tv4.validate(pm.response.json(), pm.globals.get('schemaUsuarioduplicado'))).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.unset(\"schemaUsuarioduplicado\");\r",
+									"\r",
+									"pm.globals.set(\"schemaUsuarioduplicado\", {\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"{{userName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{userPassword}}\",\n    \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/usuarios",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema valido\", function(){\r",
+									"    pm.expect(tv4.validate(pm.response.json(), pm.globals.get('schemaBuscaUsuario'))).to.be.true;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar o id retornado\", function(){\r",
+									"    pm.expect(pm.response.json()._id).to.eql(pm.globals.get(\"userid\"));\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.globals.unset(\"schemaBuscaUsuario\");\r",
+									"\r",
+									"pm.globals.set(\"schemaBuscaUsuario\",{\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"nome\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"email\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"password\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"administrador\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"_id\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"nome\",\r",
+									"    \"email\",\r",
+									"    \"password\",\r",
+									"    \"administrador\",\r",
+									"    \"_id\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/usuarios/{{userid}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Editar usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema valido\", function(){\r",
+									"    pm.expect(tv4.validate(pm.response.json(), pm.globals.get('schemaEditarUsuario'))).to.be.true;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro alterado com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.unset(\"schemaEditarUsuario\");\r",
+									"\r",
+									"pm.globals.set(\"schemaEditarUsuario\",{\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"{{userName}}\",\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{userPassword}}\",\n    \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/usuarios/{{userid}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário atualizado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"//buscando um camppo booleano,transformar o campo em string e usar o eql.\r",
+									"//deixar o campo entre (\"\")\r",
+									"pm.test(\"Validar usuário como adminstrador\", function(){\r",
+									"     pm.expect(pm.response.json().administrador).to.equal(\"true\")\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/usuarios/{{userid}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir usuário com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro excluído com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/usuarios/{{userid}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário não existente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar Status code 400\", function() {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Usuário não encontrado\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/usuarios/{{userid}}",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"usuarios",
+								"{{userid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Produtos",
+			"item": [
+				{
+					"name": "Listar produtos cadastrados",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/produtos?_id=1&nome=qwwert&preco=1&descricao=1&quantidade=1",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"produtos"
+							],
+							"query": [
+								{
+									"key": "_id",
+									"value": "1"
+								},
+								{
+									"key": "nome",
+									"value": "qwwert"
+								},
+								{
+									"key": "preco",
+									"value": "1"
+								},
+								{
+									"key": "descricao",
+									"value": "1"
+								},
+								{
+									"key": "quantidade",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar produto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Logitech MX Vertical\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/produtos",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"produtos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar produto por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/produtos/1",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"produtos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir produto",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/produtos/1",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"produtos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Editar produto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Logitech MX Vertical\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/produtos/1",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"produtos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carrinhos",
+			"item": [
+				{
+					"name": "Listar carrinhos cadastrados",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/carrinhos?_id=1&precoTotal=11&quantidadeTotal=1&idUsuario=1",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carrinhos"
+							],
+							"query": [
+								{
+									"key": "_id",
+									"value": "1"
+								},
+								{
+									"key": "precoTotal",
+									"value": "11"
+								},
+								{
+									"key": "quantidadeTotal",
+									"value": "1"
+								},
+								{
+									"key": "idUsuario",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"BeeJh5lz3k6kSIzA\",\n      \"quantidade\": 1\n    },\n    {\n      \"idProduto\": \"YaeJ455lz3k6kSIzA\",\n      \"quantidade\": 3\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseURL}}/carrinhos",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carrinhos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar carrinho por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/carrinhos/qbMqntef4iTOwWfg",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carrinhos",
+								"qbMqntef4iTOwWfg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir carrinho",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/carrinhos/concluir-compra",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carrinhos",
+								"concluir-compra"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir carrinho e retornar produtos para o estoque",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{BaseURL}}/carrinhos/cancelar-compra",
+							"host": [
+								"{{BaseURL}}"
+							],
+							"path": [
+								"carrinhos",
+								"cancelar-compra"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
