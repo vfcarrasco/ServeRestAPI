@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch: # Permite rodar manualmente no botão "Run workflow"
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   newman:
     runs-on: ubuntu-latest
@@ -29,7 +33,7 @@ jobs:
         run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra
 
       - name: Upload Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2 # Usando a versão v2 para maior estabilidade
         with:
           name: Reports
           path: newman
