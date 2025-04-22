@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # <-- Adicionado para habilitar o botão "Run workflow"
+  workflow_dispatch: # Permite rodar manualmente no botão "Run workflow"
 
 jobs:
   newman:
@@ -17,7 +17,7 @@ jobs:
 
       # Config environment
       - name: Install Node
-        uses: actions/setup-node@v3.4.1
+        uses: actions/setup-node@v3
 
       - name: Install Newman and Reporter
         run: |
@@ -28,7 +28,7 @@ jobs:
         run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra
 
       - name: Upload Report
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3 # Corrigido para usar @v3
         with:
           name: Reports
           path: newman
