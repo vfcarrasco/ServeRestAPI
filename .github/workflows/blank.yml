@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Test
         run: |
-          newman run ServeRest.postman_collection.json -e serveRest_env.postman_environment.json -r cli,htmlextra
+          newman run ServeRest.postman_collection.json -e ServeRest_env.postman_environment.json -r cli,htmlextra
 
       - name: Report
         uses: actions/upload-artifact@v4
