@@ -1,35 +1,40 @@
-name: APIRest Run
-
+name: Pipeline Testes Automatizados API ServeRest Postman Newman
+# executa o workflow toda vez que for realizado um push ou pull-request no repositório
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # permite também executar esse workflow manualmente na aba "Actions" do GitHub
+  workflow_dispatch:
 
 jobs:
-  newman:
+  postman-newman-api-serve-rest:
+    # agente de execução/runner 
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Passo 1 - Obter cópia do código-fonte do repositório
+        uses: actions/checkout@v3
 
-      - name: Create dir for report
+      - name: Passo 2 - Verificar versões do Node e Newman
         run: |
-          mkdir testArtifacts
-
-      # Config environment
-      - name: Install Node
-        uses: actions/setup-node@v3.4.1
-
-      - name: Install Newman
-        run: |
-          npm install -g newman
-          npm install -g newman-reporter-htmlextra
-
-      - name: Run Test
-        run: |
-          newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra
-
-      - name: Report
+          node --version
+          newman --version
+          
+      - name: Passo 3 - Instalar newman-reporter-htmlextra
+        run: sudo npm install -g newman-reporter-htmlextra
+        
+      - name: Passo 4 - Executar com Newman testes automatizados de API REST em um ambiente de produção do "ServeRest" da collection e environment do Postman e Gerar report html 
+        run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json --delay-request 2 --reporters cli, -r htmlextra --reporter-htmlextra-export ./reports/postman-api-serve-rest-report-htmlextra-newman.html
+   
+      - name: Passo 5 - Armazenar report html
+        # expressão condicional para que sempre seja executado independentemente dos resultados dos steps anteriores
+        if: ${{ always() }}      
         uses: actions/upload-artifact@v4
-        with:
-          name: Reports
-          path: newman
+        with: 
+            name: postman-api-serve-rest-report-html-newman
+            path: ./reports
+            # armazena o report html por 30 dias
+            retention-days: 30
