@@ -5,14 +5,21 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   newman:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    outputs:
+      report-dir: ${{ steps.save-output.outputs.dir }}
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create dir
-        run: mkdir testArtifacts
+      - name: Create testArtifacts dir
+        run: mkdir -p testArtifacts
 
       - name: Install Node
         uses: actions/setup-node@v3
@@ -29,8 +36,29 @@ jobs:
             -r cli,htmlextra \
             --reporter-htmlextra-export testArtifacts/report.html
 
-      - name: Upload Report
-        uses: actions/upload-artifact@v3
+      - name: Move report to public folder
+        id: save-output
+        run: |
+          mkdir public
+          mv testArtifacts/report.html public/index.html
+          echo "dir=public" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: newman
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Restore public folder
+        run: echo "Restoring report from previous job"
+        # O diretório público já está no repositório pois foi gerado no job anterior
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          name: Reports
-          path: testArtifacts
+          path: public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
