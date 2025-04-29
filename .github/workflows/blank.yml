@@ -1,20 +1,39 @@
-- name: Create directory for test artifacts
-  run: mkdir testArtifacts
+name: Newman Run
 
-# Configuração do ambiente
-- name: Install Node
-  uses: actions/setup-node@v3
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Permite rodar manualmente no botão "Run workflow"
 
-- name: Install Newman and Reporter
-  run: |
-    npm install -g newman
-    npm install -g newman-reporter-htmlextra
+permissions:
+  contents: read
+  actions: write
 
-- name: Run Tests
-  run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-- name: Upload Report
-  uses: actions/upload-artifact@v3
-  with:
-    name: Reports
-    path: newman
+      - name: Create directory for test artifacts
+        run: mkdir testArtifacts
+
+      # Config environment
+      - name: Install Node
+        uses: actions/setup-node@v3
+
+      - name: Install Newman and Reporter
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+
+      - name: Run Tests
+        run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v2 # Usando a versão v2 para maior estabilidade
+        with:
+          name: Reports
+          path: newman
