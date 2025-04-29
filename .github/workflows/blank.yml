@@ -31,7 +31,11 @@ jobs:
 
       - name: Run Test
         run: |
-          newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra
+          newman run ServeRest.postman_collection.json \
+              -e ServeRest_env.postman_environment.json \
+              -r cli,htmlextra \
+              --reporter-htmlextra-export testArtifacts/report.html
+
 
       - name: Move report to public folder
         id: save-output
