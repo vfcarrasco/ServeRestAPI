@@ -27,7 +27,7 @@ jobs:
         run: sudo npm install -g newman-reporter-htmlextra
         
       - name: Passo 4 - Executar com Newman testes automatizados de API REST em um ambiente de produção do "ServeRest" da collection e environment do Postman e Gerar report html 
-        run: newman run ServeRest.postman_environment.json -e ServeRest_API.postman_collection.json --delay-request 2 --reporters cli, -r htmlextra --reporter-htmlextra-export ./reports/postman-api-serve-rest-report-htmlextra-newman.html
+        run: newman run ServeRest_API.postman_collection.json -e ServeRest.postman_environment.json --delay-request 2 --reporters cli, -r htmlextra --reporter-htmlextra-export ./reports/postman-api-serve-rest-report-htmlextra-newman.html
    
       - name: Passo 5 - Armazenar report html
         # expressão condicional para que sempre seja executado independentemente dos resultados dos steps anteriores
