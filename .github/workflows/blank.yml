@@ -13,53 +13,45 @@ permissions:
 jobs:
   newman:
     runs-on: ubuntu-22.04
-    outputs:
-      report-dir: ${{ steps.save-output.outputs.dir }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-      - name: Create testArtifacts dir
+      - name: Criar pasta de relatórios
         run: mkdir -p testArtifacts
 
-      - name: Install Node
+      - name: Instalar Node
         uses: actions/setup-node@v3
 
-      - name: Install Newman
+      - name: Instalar Newman
         run: |
           npm install -g newman
           npm install -g newman-reporter-htmlextra
 
-      - name: Run Test
+      - name: Restaurar arquivo de ambiente
+        run: |
+          echo "${{ secrets.SERVEREST_ENV_B64 }}" | base64 -d > ServeRest_env.postman_environment.json
+
+      - name: Executar testes Newman
         run: |
           newman run ServeRest.postman_collection.json \
-              -e ServeRest_env.postman_environment.json \
-              -r cli,htmlextra \
-              --reporter-htmlextra-export testArtifacts/report.html
+            -e ServeRest_env.postman_environment.json \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export testArtifacts/report.html
 
-
-      - name: Move report to public folder
-        id: save-output
+      - name: Mover relatório para pasta pública
         run: |
-          mkdir public
+          mkdir -p public
           mv testArtifacts/report.html public/index.html
-          echo "dir=public" >> "$GITHUB_OUTPUT"
 
-  deploy:
-    needs: newman
-    runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Restore public folder
-        run: echo "Restoring report from previous job"
-        # O diretório público já está no repositório pois foi gerado no job anterior
-
-      - name: Upload GitHub Pages artifact
+      - name: Upload artifact para GitHub Pages
         uses: actions/upload-pages-artifact@v2
         with:
           path: public
 
-      - name: Deploy to GitHub Pages
+  deploy:
+    needs: newman
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Deploy no GitHub Pages
         uses: actions/deploy-pages@v2
