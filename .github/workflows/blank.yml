@@ -1,40 +1,45 @@
-name: Newman Run
+name: Run ServeRest API Tests
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch: # Permite execução manual no GitHub
 
 jobs:
-  newman:
-    runs-on: ubuntu-latest
+  run-api-tests:
+    runs-on: ubuntu-latest # Sobe uma máquina Ubuntu na versão mais recente
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # Faz o checkout do código do repositório
 
-      - name: Create directory for reports
-        run: mkdir -p testArtifacts
+      - name: Create test directory
+        run: |
+          mkdir -p ~/serrest-tests # Cria diretório para os testes
+          cp ServeRest_API.postman_collection.json ~/serrest-tests/
+          cp ServeRest.postman_environment.json ~/serrest-tests/
+          cd ~/serrest-tests
 
-      - name: Setup Node.js
+      - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # ou outra versão, se necessário
+          node-version: '20' # Instala Node.js versão 20 (ou a versão mais recente estável)
 
-      - name: Install Newman and reporter
+      - name: Install Newman and HTML Extra Reporter
         run: |
-          npm install -g newman
-          npm install -g newman-reporter-htmlextra
+          npm install -g newman # Instala Newman globalmente
+          npm install -g newman-reporter-htmlextra # Instala o reporter HTML Extra
 
-      - name: Run Newman tests
+      - name: Run API tests with Newman
         run: |
-          newman run ServeRest.postman_collection.json \
-            -e ServeRest_env.postman_environment.json \
+          cd ~/serrest-tests
+          newman run ServeRest_API.postman_collection.json \
+            -e ServeRest.postman_environment.json \
             -r cli,htmlextra \
-            --reporter-htmlextra-export testArtifacts/report.html
+            --reporter-htmlextra-export test-report.html # Roda os testes com relatório em HTML
 
-      - name: Upload Newman report
+      - name: Upload HTML report
         uses: actions/upload-artifact@v3
         with:
-          name: Reports
-          path: testArtifacts
+          name: serve-rest-html-report
+          path: ~/serrest-tests/test-report.html # Anexa o relatório como artefato no GitHub
+
+      # A sessão termina automaticamente após o fim do workflow
