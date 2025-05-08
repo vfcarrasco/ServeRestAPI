@@ -12,18 +12,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout do código
+      - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🟢 Setup do Node.js
+      - name: Setup do Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: 📦 Instalação de dependências
+      - name: Instalação de dependências
         run: npm install
 
-      - name: 🔍 Verificação de lint
+      - name: Verificação de lint
         run: |
           if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
             npm run lint
@@ -31,10 +31,10 @@ jobs:
             echo "Lint não configurado, etapa ignorada."
           fi
 
-      - name: 🧪 Execução dos testes
+      - name: Execução dos testes
         run: npm test || echo "Nenhum teste configurado."
 
-      - name: ✅ Validação de build (opcional)
+      - name: Validação de build (opcional)
         run: |
           if grep -q '"build":' package.json; then
             npm run build
