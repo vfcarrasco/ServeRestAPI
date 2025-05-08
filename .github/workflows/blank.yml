@@ -1,43 +1,39 @@
-name: CI - ServeRestAPI
+name: postman-newman-api-serve-rest
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
-  build-and-test:
+  newman-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: Passo 1 - Obter cópia do código-fonte do repositório
         uses: actions/checkout@v3
 
-      - name: Setup do Node.js
-        uses: actions/setup-node@v3
+      - name: Passo 2 - Verificar versões do Node e Newman
+        run: |
+          node -v
+          npm -v
+          npm install -g newman
+          newman -v
+
+      - name: Passo 3 - Instalar newman-reporter-htmlextra
+        run: npm install -g newman-reporter-htmlextra
+
+      - name: Passo 4 - Executar com Newman testes automatizados de API REST
+        run: |
+          newman run ./postman/ServeRest.postman_collection.json \
+            -e ./postman/ServeRest.postman_environment.json \
+            -r htmlextra \
+            --reporter-htmlextra-export ./newman/report.html
+
+      - name: Passo 5 - Armazenar report html
+        uses: actions/upload-artifact@v3
         with:
-          node-version: '18'
-
-      - name: Instalação de dependências
-        run: npm install
-
-      - name: Verificação de lint
-        run: |
-          if [ -f .eslintrc.js ] || [ -f .eslintrc.json ]; then
-            npm run lint
-          else
-            echo "Lint não configurado, etapa ignorada."
-          fi
-
-      - name: Execução dos testes
-        run: npm test || echo "Nenhum teste configurado."
-
-      - name: Validação de build (opcional)
-        run: |
-          if grep -q '"build":' package.json; then
-            npm run build
-          else
-            echo "Sem script de build definido. Etapa ignorada."
-          fi
+          name: newman-report
+          path: ./newman/report.html
