@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 jobs:
-  newman-tests:
+  newman-api-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,15 +25,22 @@ jobs:
       - name: Passo 3 - Instalar newman-reporter-htmlextra
         run: npm install -g newman-reporter-htmlextra
 
-      - name: Passo 4 - Executar com Newman testes automatizados de API REST
+      - name: Passo 4 - Executar com Newman testes automatizados de API REST em um ambiente de produção do "ServeRest"
         run: |
           newman run ./postman/ServeRest.postman_collection.json \
             -e ./postman/ServeRest.postman_environment.json \
-            -r htmlextra \
-            --reporter-htmlextra-export ./newman/report.html
+            --delay-request 250 \
+            --insecure \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export ./newman/report.html \
+            --reporter-htmlextra-title "Relatório Newman HTML" \
+            --reporter-htmlextra-darkTheme true \
+            --reporter-htmlextra-showEnvironmentData true \
+            --reporter-htmlextra-browserTitle "Relatório ServeRest API" \
+            --reporter-htmlextra-titleSize 4
 
       - name: Passo 5 - Armazenar report html
         uses: actions/upload-artifact@v3
         with:
-          name: newman-report
+          name: newman-html-report
           path: ./newman/report.html
