@@ -1,45 +1,38 @@
-name: Run ServeRest API Tests
+name: CI - ServeRestAPI
 
 on:
-  workflow_dispatch: # Permite execução manual no GitHub
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # Permite execução manual
 
 jobs:
-  run-api-tests:
-    runs-on: ubuntu-latest # Sobe uma máquina Ubuntu na versão mais recente
+  build-and-test:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3 # Faz o checkout do código do repositório
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v3
 
-      - name: Create test directory and copy files
-        run: |
-          mkdir -p ~/serrest-tests # Cria diretório para os testes
-          cp ServeRest_API.postman_collection.json ~/serrest-tests/
-          cp ServeRest.postman_environment.json ~/serrest-tests/
-          cd ~/serrest-tests
-
-      - name: Install Node.js
+      - name: 🟢 Setup do Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20' # Instala Node.js versão 20 (ou a versão mais recente estável)
+          node-version: '18'
 
-      - name: Install Newman and HTML Extra Reporter
+      - name: 📦 Instalação de dependências
+        run: npm ci
+
+      - name: 🔍 Verificação de lint
+        run: npm run lint
+
+      - name: 🧪 Execução dos testes
+        run: npm test
+
+      - name: ✅ Validação de build (opcional)
         run: |
-          npm install -g newman # Instala Newman globalmente
-          npm install -g newman-reporter-htmlextra # Instala o reporter HTML Extra
-
-      - name: Run API tests with Newman
-        run: |
-          cd ~/serrest-tests
-          newman run ServeRest_API.postman_collection.json \
-            -e ServeRest.postman_environment.json \
-            -r cli,htmlextra \
-            --reporter-htmlextra-export test-report.html # Roda os testes com relatório em HTML
-
-      - name: Upload HTML report
-        uses: actions/upload-artifact@v3
-        with:
-          name: serve-rest-html-report
-          path: ~/serrest-tests/test-report.html # Anexa o relatório como artefato no GitHub
-
-      # A máquina encerra após o fim do job
+          if [ -f package.json ] && grep -q '"build":' package.json; then
+            npm run build
+          else
+            echo "Sem script de build definido. Etapa ignorada."
+          fi
