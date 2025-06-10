@@ -1,4 +1,4 @@
-name: Postman Tests
+name: Newman Tests
 
 on:
   push:
@@ -24,9 +24,9 @@ jobs:
           npm install -g newman
           npm install -g newman-reporter-html
 
-      - name: Rodar testes com Newman
+      - name: Rodar testes com Newman (com ambiente)
         run: |
-          newman run ./tests/postman/ServeRest.postman_collection.json \
+          newman run ./tests/postman/ServeRest_API.postman_collection.json \
             -e ./tests/postman/ServeRest.postman_environment.json \
             -r cli,html \
             --reporter-html-export newman/report.html
