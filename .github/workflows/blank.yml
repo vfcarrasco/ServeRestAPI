@@ -1,4 +1,4 @@
-]name: Newman Tests
+name: Newman Tests
 
 on:
   push:
@@ -35,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: newman-report
-          path:
+          path: newman/report.html
