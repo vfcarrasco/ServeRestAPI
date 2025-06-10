@@ -1,46 +1,32 @@
-name: postman-newman-api-serve-rest
+trigger:
+  - main  # Ou a branch desejada
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+pool:
+  vmImage: 'ubuntu-latest'
 
-jobs:
-  newman-api-test:
-    runs-on: ubuntu-latest
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Instalar Node.js'
 
-    steps:
-      - name: Passo 1 - Obter cópia do código-fonte do repositório
-        uses: actions/checkout@v3
+  - script: |
+      npm install -g newman
+      npm install -g newman-reporter-html
+    displayName: 'Instalar Newman e Reporter HTML'
 
-      - name: Passo 2 - Verificar versões do Node e Newman
-        run: |
-          node -v
-          npm -v
-          npm install -g newman
-          newman -v
+  - checkout: self
 
-      - name: Passo 3 - Instalar newman-reporter-htmlextra
-        run: npm install -g newman-reporter-htmlextra
+  - script: |
+      newman run ./tests/postman/ServeRest.postman_collection.json \
+        -e ./tests/postman/ServeRest.postman_environment.json \
+        -r cli,html \
+        --reporter-html-export ./newman/report.html
+    displayName: 'Executar testes Postman com Newman'
 
-      - name: Passo 4 - Executar com Newman testes automatizados de API REST em um ambiente de produção do "ServeRest"
-        run: |
-          newman run ./postman/ServeRest.postman_collection.json \
-            -e ./postman/ServeRest.postman_environment.json \
-            --delay-request 250 \
-            --insecure \
-            --reporters cli,htmlextra \
-            --reporter-htmlextra-export ./newman/report.html \
-            --reporter-htmlextra-title "Relatório Newman HTML" \
-            --reporter-htmlextra-darkTheme true \
-            --reporter-htmlextra-showEnvironmentData true \
-            --reporter-htmlextra-browserTitle "Relatório ServeRest API" \
-            --reporter-htmlextra-titleSize 4
-
-      - name: Passo 5 - Armazenar report html
-        uses: actions/upload-artifact@v3
-        with:
-          name: newman-html-report
-          path: ./newman/report.html
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: 'newman'
+      ArtifactName: 'RelatorioNewman'
+      publishLocation: 'Container'
+    displayName: 'Publicar Relatório HTML'
