@@ -1,50 +1,21 @@
-name: Newman Tests
+name: API Tests
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request]
 
 jobs:
-  run-postman-tests:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-
+      - name: Checkout do código
+        uses: actions/checkout@v3
+      
       - name: Instalar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'
-
-      - name: Instalar dependências e iniciar API ServeRest
-        run: |
-          npm install
-          nohup npm start &
-          for i in {1..30}; do
-            if nc -z localhost 3000; then
-              echo "API iniciada com sucesso."
-              break
-            fi
-            sleep 2
-          done
-
+          node-version: '20'
+      
       - name: Instalar Newman
-        run: |
-          npm install -g newman
-          npm install -g newman-reporter-html
-
-      - name: Rodar testes com Newman (com ambiente)
-        run: |
-          newman run ./tests/postman/ServeRest_API.postman_collection.json \
-            -e ./tests/postman/ServeRest.postman_environment.json \
-            -r cli,html \
-            --reporter-html-export newman/report.html
-
-      - name: Upload relatório HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: newman-report
-          path: newman/report.html
+        run: npm install -g newman
+      
+      - name: Executar testes da API com o ambiente Postman
+        run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json
