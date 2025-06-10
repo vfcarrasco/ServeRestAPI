@@ -19,6 +19,18 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Instalar dependências e iniciar API ServeRest
+        run: |
+          npm install
+          nohup npm start &
+          for i in {1..30}; do
+            if nc -z localhost 3000; then
+              echo "API iniciada com sucesso."
+              break
+            fi
+            sleep 2
+          done
+
       - name: Instalar Newman
         run: |
           npm install -g newman
