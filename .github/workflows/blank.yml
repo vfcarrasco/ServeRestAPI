@@ -18,4 +18,4 @@ jobs:
         run: npm install -g newman
       
       - name: Executar testes da API com o ambiente Postman
-        run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json
+        run: newman run ServeRest.postman_collection.json -e ServeRest.postman_environment.json --env-var "TOKEN=${{ secrets.API_TOKEN }}"
