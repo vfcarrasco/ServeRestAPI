@@ -1,4 +1,4 @@
-name: Newman Tests
+name: Postman Tests
 
 on:
   push:
