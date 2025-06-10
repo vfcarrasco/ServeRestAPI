@@ -1,0 +1,2854 @@
+{
+	"info": {
+		"_postman_id": "3b59ff89-0843-4102-a07d-d00198e06bc1",
+		"name": "ServeRest_API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "9233660",
+		"_collection_link": "https://gold-equinox-706002.postman.co/workspace/ServerRest~e4668a76-7790-428b-9f8c-d60cf53e0926/collection/9233660-3b59ff89-0843-4102-a07d-d00198e06bc1?action=share&source=collection_link&creator=9233660"
+	},
+	"item": [
+		{
+			"name": "Fluxo completo",
+			"item": [
+				{
+					"name": "Listar usuários cadastrados",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios",
+						"description": "# Get Users\n\nThis endpoint is used to retrieve a list of users.\n\n## Request\n\n- Method: GET\n    \n- URL: {{BaseURL}}/usuarios\n    \n\n## Response\n\nThe response will contain a list of user objects, including their details such as user ID, name, email, and other relevant information.\n\nExample response:\n\n``` json\n[\n    {\n        \"id\": 123,\n        \"name\": \"John Doe\",\n        \"email\": \"johndoe@example.com\",\n        ...\n    },\n    {\n        \"id\": 456,\n        \"name\": \"Jane Smith\",\n        \"email\": \"janesmith@example.com\",\n        ...\n    },\n    ...\n]\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastro de usuário campos obrigatórios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"nome é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().nome).to.be.eql(\"nome é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"email é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().email).to.be.eql(\"email é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"password é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().password).to.be.eql(\"password é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de campo \\\"administrador é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().administrador).to.be.eql(\"administrador é obrigatório\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n//    \"nome\": \"Vitor\",\n//    \"email\": \"vitorcarrasco@gmail.com\",\n//    \"password\": \"123456\",\n//    \"administrador\": \"false\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de usuário sucesso (não adminstrador)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 201\", function() {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Cadastro realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Capturar o id do usuário\", function(){\r",
+									"    pm.globals.set(\"userid\", pm.response.json()._id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//limpa a variavel global\r",
+									"pm.globals.unset(\"schemaCadastrarUsuario\");\r",
+									"\r",
+									"//Inserir informações de validação de schema\r",
+									"pm.globals.set(\"schemaCadastrarUsuario\", {\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"_id\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\",\r",
+									"    \"_id\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitor\",\n    \"email\": \"vitorcarrasco@gmail.com\",\n    \"password\": \"123456\",\n    \"administrador\": \"false\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de usuário duplicado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function() {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Este email já está sendo usado\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Este email já está sendo usado\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitor\",\n    \"email\": \"vitorcarrasco@gmail.com\",\n    \"password\": \"123456\",\n    \"administrador\": \"false\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário por ID inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"id deve ter exatamente 16 caracteres alfanuméricos\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().id).to.be.eql(\"id deve ter exatamente 16 caracteres alfanuméricos\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/999999"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário por ID  invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Usuário não encontrado\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Usuário não encontrado\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/1tCRQsuhP8MAi3Fx"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário por ID sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200 \", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar se o id do usuário está sendo retornado corretamente\", function(){\r",
+									"    pm.expect(pm.response.json()._id).to.eql(pm.globals.get(\"userid\"));\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.globals.unset(\"schemaBuscaUsuario\");\r",
+									"\r",
+									"pm.globals.set(\"schemaBuscaUsuario\",{\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"nome\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"email\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"password\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"administrador\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"_id\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"nome\",\r",
+									"    \"email\",\r",
+									"    \"password\",\r",
+									"    \"administrador\",\r",
+									"    \"_id\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar usuário sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Registro alterado com sucesso\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro alterado com sucesso\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.unset(\"schemaEditarUsuario\");\r",
+									"\r",
+									"pm.globals.set(\"schemaEditarUsuario\",{\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitor\",\n    \"email\": \"vitorcarrasco@gmail.com\",\n    \"password\": \"123456\",\n    \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Edição de usuário campos obrigatórios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"nome é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().nome).to.be.eql(\"nome é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"email é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().email).to.be.eql(\"email é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"password é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().password).to.be.eql(\"password é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"administrador é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().administrador).to.be.eql(\"administrador é obrigatório\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n//    \"nome\": \"Vitor\",\n//    \"email\": \"vitorcarrasco@gmail.com\"\n//    \"password\": \"123456\",\n//    \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar usuário com mesmo e-mail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Este email já está sendo usado\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Este email já está sendo usado\");\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const novoUsuario = {\r",
+									"    nome: \"Vitor Carrasco\",\r",
+									"    email: \"vitorfcarrasco@gmail.com\",\r",
+									"    password: \"123456\",\r",
+									"    administrador: \"true\"\r",
+									"};\r",
+									"\r",
+									"// Faz o POST para criar o usuário\r",
+									"pm.sendRequest({\r",
+									"    url: 'https://serverest.dev/usuarios',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(novoUsuario)\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (err) {\r",
+									"        console.error(\"Erro ao criar usuário:\", err);\r",
+									"        return;\r",
+									"    }\r",
+									"\r",
+									"    const json = res.json();\r",
+									"    \r",
+									"    if (res.code === 201 && json._id) {\r",
+									"        // Salva o ID para ser usado na requisição PUT\r",
+									"        pm.environment.set(\"usuarioId\", json._id);\r",
+									"        console.log(\"Usuário criado com sucesso:\", json._id);\r",
+									"    } else {\r",
+									"        console.warn(\"Não foi possível criar o usuário:\", res.status, json);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitor\",\n    \"email\": \"vitorfcarrasco@gmail.com\",\n    \"password\": \"123456\",\n    \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário atualizado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar usuário como adminstrador\", function(){\r",
+									"     pm.expect(pm.response.json().administrador).to.equal(\"true\")\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Login com senha e usuário invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Email e/ou senha inválidos\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Email e/ou senha inválidos\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{$randomEmail}}\",\n  \"password\": \"{{$randomPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login administrador com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar mensagem \\\"Login realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Login realizado com sucesso\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar status code 200 e capturar token\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const token = pm.response.json().authorization;\r",
+									"    pm.environment.set(\"token_adm\", token);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"vitorcarrasco@gmail.com\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar produtos cadastrados",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de produto erro no token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\");\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{$randomProductName}}\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de produto sucesso",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Cadastro realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Capturar o id do produto\", function(){\r",
+									"    pm.globals.set(\"productid\", pm.response.json()._id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"{{$randomProductName}}\",\n    \"preco\": 470,\n    \"descricao\": \"Mouse\",\n    \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de produto campos obrigatórios",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"nome é obrigatório\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().nome).to.be.eql(\"nome é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"preco é obrigatório\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().preco).to.be.eql(\"preco é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"descricao é obrigatório\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().descricao).to.be.eql(\"descricao é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"quantidade é obrigatório\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().quantidade).to.be.eql(\"quantidade é obrigatório\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n//  \"nome\": \"{{$randomProductName}}\",\n//  \"preco\": 470,\n//  \"descricao\": \"Mouse\",\n//  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar produto por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar se o id do produto está sendo retornado corretamente\", function(){\r",
+									"    pm.expect(pm.response.json()._id).to.eql(pm.globals.get(\"productid\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Capturar o nome do produto\", function(){\r",
+									"    pm.globals.set(\"nomeProduto\", pm.response.json().nome);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de produto mesmo nome",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Já existe produto com esse nome\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Já existe produto com esse nome\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{nomeProduto}}\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Busca de produto por ID invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Produto não encontrado\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Produto não encontrado\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/produtos/uWmDAnrUHa6ZCNLh"
+					},
+					"response": []
+				},
+				{
+					"name": "Busca de produto por ID inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"id deve ter exatamente 16 caracteres alfanuméricos\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().id).to.be.eql(\"id deve ter exatamente 16 caracteres alfanuméricos\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/produtos/999999"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar produto sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Valdiar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Registro alterado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro alterado com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{$randomProductName}}\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar produto campos obrigatorio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Valdiar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"nome é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().nome).to.be.eql(\"nome é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"preco é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().preco).to.be.eql(\"preco é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"descricao é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().descricao).to.be.eql(\"descricao é obrigatório\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"quantidade é obrigatório\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().quantidade).to.be.eql(\"quantidade é obrigatório\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n//  \"nome\": \"{{$randomProductName}}\",\n//  \"preco\": 470,\n//  \"descricao\": \"Mouse\",\n//  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar produto erro no token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Valdiar status code 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{$randomProductName}}\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de produto sucesso",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const id = [...Array(16)].map(() =>\r",
+									"  Math.random().toString(36).charAt(2)\r",
+									").join('');\r",
+									"\r",
+									"pm.environment.set(\"idGerado\", id);\r",
+									"\r",
+									"pm.variables.replaceIn('{{randomProduct}}')\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Cadastro realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"{{$randomFirstName}}\",\n    \"preco\": 199,\n    \"descricao\": \"Produto atualizado via PUT e ID gerado\",\n    \"quantidade\": 1\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://serverest.dev/produtos/{{idGerado}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Listar carrinhos cadastrados",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho quantidade insuficiente",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Produto não possui quantidade suficiente\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Produto não possui quantidade suficiente\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"{{productid}}\",\n      \"quantidade\": 999999\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho com sucesso",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Capturar o id do carrinho\", function(){\r",
+									"    pm.globals.set(\"basketid\", pm.response.json()._id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Cadastro realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"{{productid}}\",\n      \"quantidade\": 1\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho produto não encontrado",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Não é permitido ter mais de 1 carrinho\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Não é permitido ter mais de 1 carrinho\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"BeeJh5lz3k6kSIzA\",\n      \"quantidade\": 1\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho produto duplicado",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Não é permitido ter mais de 1 carrinho\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Não é permitido ter mais de 1 carrinho\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \"produtos\": [\n    {\n      \"idProduto\": \"{{productid}}\",\n      \"quantidade\": 1\n    },\n    {\n      \"idProduto\": \"{{productid}}\",\n      \"quantidade\": 1\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho erro no token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem erro no token \", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"{{productid}}\",\n      \"quantidade\": 1\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar carrinho campo obrigatorio",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem campo obrigatório quantidade\", function() {\r",
+									"    pm.expect(pm.response.json().produtos).to.be.eql(\"produtos não contém 1 valor obrigatório\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"produtos\": [\n\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar carrinho sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/carrinhos/{{basketid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar carrinho por ID inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"id deve ter exatamente 16 caracteres alfanuméricos\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().id).to.be.eql(\"id deve ter exatamente 16 caracteres alfanuméricos\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos/999999"
+					},
+					"response": []
+				},
+				{
+					"name": "Busca carrinho por ID invalido / Carrinho não encontrado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Carrinho não encontrado\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Carrinho não encontrado\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/carrinhos/uWmDAnrUHa6ZCNLh"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar usuário com carrinho cadastrado",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de não é permitido excluir usuário com carrinho cadastrado\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Não é permitido excluir usuário com carrinho cadastrado\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir produto que faz parte do carrinho",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de erro não é permitido excluir produto que faz parte de carrinho \", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Não é permitido excluir produto que faz parte de carrinho\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							}
+						],
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir carrinho",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de registro excluído com sucesso\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro excluído com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							}
+						],
+						"url": "{{BaseURL}}/carrinhos/concluir-compra"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir carrinho erro no token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}",
+								"disabled": true
+							}
+						],
+						"url": "{{BaseURL}}/carrinhos/concluir-compra"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir produto sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de produto excluido com sucesso\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro excluído com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							}
+						],
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir produto erro no token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Token de acesso ausente, inválido, expirado ou usuário do token não existe mais\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}",
+								"disabled": true
+							}
+						],
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir usuário sem registro",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Nenhum registro excluído\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Nenhum registro excluído\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/999999"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir usuário admin com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Registro excluído com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro excluído com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuário excluido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar Status code 400\", function() {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Usuário não encontrado\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Usuário não encontrado\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/{{userid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastro de usuário realizada com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem de \\\"Cadastro realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{$randomFirstName}}\",\n  \"email\": \"{{$randomEmail}}\",\n  \"password\": \"{{$randomPassword}}\",\n  \"administrador\": \"{{$randomBoolean}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios/{{$guid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de usuário sucesso (adminstrador)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 201\", function() {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Cadastro realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Cadastro realizado com sucesso\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Capturar o id do usuário admin\", function(){\r",
+									"    pm.globals.set(\"useridadmin\", pm.response.json()._id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//limpa a variavel global\r",
+									"pm.globals.unset(\"schemaCadastrarUsuario\");\r",
+									"\r",
+									"//Inserir informações de validação de schema\r",
+									"pm.globals.set(\"schemaCadastrarUsuario\", {\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    },\r",
+									"    \"_id\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\",\r",
+									"    \"_id\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitor\",\n    \"email\": \"vitorcarrasco@gmail.com\",\n    \"password\": \"123456\",\n    \"administrador\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar usuário administrador com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Registro alterado com sucesso\\\"\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro alterado com sucesso\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.unset(\"schemaEditarUsuario\");\r",
+									"\r",
+									"pm.globals.set(\"schemaEditarUsuario\",{\r",
+									"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"message\": {\r",
+									"      \"type\": \"string\"\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"message\"\r",
+									"  ]\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vitor\",\n    \"email\": \"vitorcarrasco@gmail.com\",\n    \"password\": \"123456\",\n    \"administrador\": \"false\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/usuarios/{{useridadmin}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Login não administrador com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar mensagem \\\"Login realizado com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Login realizado com sucesso\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar status code 200 e capturar token\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const token = pm.response.json().authorization;\r",
+									"    pm.environment.set(\"token_simples\", token);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"vitorcarrasco@gmail.com\",\n  \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Cadastrar de produto  - Rota exclusiva para administradores",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Rota exclusiva para administradores\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Rota exclusiva para administradores\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_adm}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"{{$randomProductName}}\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos"
+					},
+					"response": []
+				},
+				{
+					"name": "Editar produto sucesso - Rota exclusiva para administradores",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Valdiar status code 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Rota exclusiva para administradores\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Rota exclusiva para administradores\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_simples}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Nome Produto\",\n  \"preco\": 470,\n  \"descricao\": \"Mouse\",\n  \"quantidade\": 381\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir produto sucesso - Rota exclusiva para administradores",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Rota exclusiva para administradores\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Rota exclusiva para administradores\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token_simples}}"
+							}
+						],
+						"url": "{{BaseURL}}/produtos/{{productid}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir usuário não admin com sucesso",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validar status code 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validar mensagem \\\"Registro excluído com sucesso\\\"\", function() {\r",
+									"    pm.expect(pm.response.json().message).to.be.eql(\"Registro excluído com sucesso\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{BaseURL}}/usuarios/{{useridadmin}}"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "inherit",
+		"inherit": {}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
