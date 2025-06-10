@@ -1,32 +1,38 @@
-trigger:
-  - main  # Ou a branch desejada
+name: Newman Tests
 
-pool:
-  vmImage: 'ubuntu-latest'
+on:
+  push:
+    branches:
+      - main  # Ou a branch que preferir
+  pull_request:
 
-steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '18.x'
-    displayName: 'Instalar Node.js'
+jobs:
+  run-postman-tests:
+    runs-on: ubuntu-latest
 
-  - script: |
-      npm install -g newman
-      npm install -g newman-reporter-html
-    displayName: 'Instalar Newman e Reporter HTML'
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-  - checkout: self
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-  - script: |
-      newman run ./tests/postman/ServeRest.postman_collection.json \
-        -e ./tests/postman/ServeRest.postman_environment.json \
-        -r cli,html \
-        --reporter-html-export ./newman/report.html
-    displayName: 'Executar testes Postman com Newman'
+      - name: Instalar Newman
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-html
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: 'newman'
-      ArtifactName: 'RelatorioNewman'
-      publishLocation: 'Container'
-    displayName: 'Publicar Relatório HTML'
+      - name: Rodar testes com Newman
+        run: |
+          newman run ./tests/postman/ServeRest.postman_collection.json \
+            -e ./tests/postman/ServeRest.postman_environment.json \
+            -r cli,html \
+            --reporter-html-export newman/report.html
+
+      - name: Upload relatório HTML
+        uses: actions/upload-artifact@v3
+        with:
+          name: newman-report
+          path: newman/report.html
