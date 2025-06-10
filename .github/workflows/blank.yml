@@ -1,9 +1,9 @@
-name: Newman Tests
+]name: Newman Tests
 
 on:
   push:
     branches:
-      - main  # Ou a branch que preferir
+      - main
   pull_request:
 
 jobs:
@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Instalar Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
@@ -32,7 +32,7 @@ jobs:
             --reporter-html-export newman/report.html
 
       - name: Upload relatório HTML
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: newman-report
-          path: newman/report.html
+          path:
