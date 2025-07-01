@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Newman Tests
         run: |
-          newman run ./tests/postman/ServeRest_API.postman_collection.json \
+          newman run ./tests/postman/ServeRest_API.postman_collection.json -r cli
             -e ./tests/Postman/ServeRest.postman_environment.json
             -r cli,htmlextra \
             --reporter-htmlextra-export testArtifacts/report.html
