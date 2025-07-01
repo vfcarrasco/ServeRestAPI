@@ -1,35 +1,39 @@
-name: APIRest Run
- 
- on:
-   push:
-     branches:
-       - main
- 
- jobs:
-   newman:
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/checkout@v3
- 
-       - name: Create dir for report
-         run: |
-           mkdir testArtifacts
- 
-       # Config environment
-       - name: Install Node
-         uses: actions/setup-node@v3.4.1
- 
-       - name: Install Newman
-         run: |
-           npm install -g newman
-           npm install -g newman-reporter-htmlextra
- 
-       - name: Run Test
-         run: |
-		newman run ServeRest_API.postman_collection.json -e ServeRest.postman_environment.json -r cli,htmlextra 		
-		
-       - name: Report
-         uses: actions/upload-artifact@v4
-         with:
-           name: Reports
-           path: newman
+name: API Test Automation with Postman
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: 0 20 * * 6
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@master
+
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '20'
+
+      - name: Install newman
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+
+      - name: Run POSTMAN collection
+        run: |
+          newman run ServeRest_API.postman_collection.json \
+            -e ServeRest.postman_environment.json \
+            -r htmlextra
+
+      - name: Output the run Details
+        uses: actions/upload-artifact@v4
+        with:
+          name: RunReports
+          path: newman
